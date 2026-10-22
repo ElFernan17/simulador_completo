@@ -16,6 +16,7 @@ let creditoAprobado = false;
 function ocultarSecciones() {
   document.getElementById("clientes").classList.remove("activa");
   document.getElementById("parametros").classList.remove("activa");
+  document.getElementById("creditos").classList.remove("activa");
 
 }
 
@@ -54,7 +55,7 @@ function guardarCliente() {
     clienteBuscado.egresos = ValorEgresos
 
   } else if (clienteBuscado == null) {
-    
+
     let valorNombre = document.getElementById("txtNombre").value
     let valorApellido = document.getElementById("txtApellido").value
     let valorCedula = document.getElementById("txtCedula").value
@@ -128,10 +129,147 @@ function seleccionarCliente(cedula) {
   document.getElementById("txtEgresos").value = clienteSeleccionado.egresos
 }
 
-function limpiar(){
+function limpiar() {
   document.getElementById("txtNombre").value = ""
   document.getElementById("txtApellido").value = ""
   document.getElementById("txtCedula").value = ""
   document.getElementById("txtIngresos").value = ""
   document.getElementById("txtEgresos").value = ""
+}
+
+
+//taller de simulacion de creadito PARTE 2
+function buscarClienteCredito() {
+  let cmpCedula = document.getElementById("buscarCedulaCredito").value
+  let clienteBuscado = buscarCliente(cmpCedula);
+  let cmpDivDatos = document.getElementById("datosClienteCredito")
+
+  if (clienteBuscado != null) {
+
+    cmpDivDatos.innerHTML = "<table> <tr><th>Cédula</th><th>Nombre</th><th>Apellido</th><th>Ingresos</th><th>Egresos</th></tr>" +
+      "<td>" + clienteBuscado.cedula + "</td>" +
+      "<td>" + clienteBuscado.nombre + "</td>" +
+      "<td>" + clienteBuscado.apellido + "</td>" +
+      "<td>" + clienteBuscado.ingresos + "</td>" +
+      "<td>" + clienteBuscado.egresos + "</td>" +
+      "</tr>"
+
+
+  } else if (clienteBuscado == null) {
+
+    cmpDivDatos.innerHTML = "<h5>Cliente no Encontrado verifique su cedula</h5>"
+
+  }
+
+}
+
+//funciones reutilizadas de simulador de Credito
+
+function calcularDisponible(ingresos, egresos) {
+  let disponible = ingresos - egresos;
+
+  if (disponible < 0) {
+    return 0;
+  }
+
+  return disponible;
+}
+
+function calcular() {
+
+  let cmpCedula = document.getElementById("buscarCedulaCredito").value
+  let clienteBuscado = buscarCliente(cmpCedula);
+
+  //disponible
+  let ingresos = clienteBuscado.ingresos
+  let egresos = clienteBuscado.egresos
+
+  let disponible = calcularDisponible(ingresos, egresos);
+
+  let capacidadDePago = calcularCapacidadPago(disponible);
+
+  //intereses simple
+  let monto = recuperarFloat("montoCredito");
+  let tasa = recuperarFloat("tasaInteres");
+  let plazo = recuperarFloat("plazoCredito");
+
+  let interes = calcularInteresSimple(monto, tasa, plazo);
+
+  mostrarTextoSpan("spnInteresPagar", interes)
+
+  //total a pagar
+  let totalPagar = calcularTotalPagar(monto, interes);
+
+  mostrarTextoSpan("spnTotalPrestamo", totalPagar)
+
+  //calcular cuota mensual
+  let cuotaMensual = calcularCuotaMensual(totalPagar, plazo).toFixed(2)
+
+  mostrarTextoSpan("spnCuotaMensual", cuotaMensual)
+
+  let aprobado = aprobarCredito(capacidadDePago, cuotaMensual);
+
+  if (aprobado == true) {
+
+    mostrarTextoSpan("spnEstadoCredito", "CREDITO APROBADO")
+    resultadoCredito.className = "aprobado"
+
+  } else {
+
+    mostrarTextoSpan("spnEstadoCredito", "CREDITO RECHAZADO")
+    resultadoCredito.className = "rechazado"
+
+  }
+}
+
+
+//funciones matematicas
+function calcularCapacidadPago(montoDisponible) {
+
+  return montoDisponible / 3;
+}
+
+function calcularInteresSimple(monto, tasa, plazo) {
+  return plazo * monto * (tasa / 100);
+}
+
+function calcularTotalPagar(monto, interes) {
+  return monto + interes ;
+}
+
+function calcularCuotaMensual(total, plazo) {
+  let meses = plazo * 12;
+  return total / meses;
+}
+
+function aprobarCredito(capacidadPago, cuotaMensual) {
+  return capacidadPago > cuotaMensual;
+}
+
+
+//funciones de utilidades
+
+function recuperarTexto(idComponente) {
+
+  let componente = document.getElementById(idComponente);
+  let valor = componente.value;
+
+  return valor
+}
+
+function recuperarFloat(idComponente) {
+
+  let valorTexto = recuperarTexto(idComponente);
+  let valorFloat = parseFloat(valorTexto);
+
+  return valorFloat;
+}
+
+function mostrarTextoSpan(idSpan, texto) {
+  const span = document.getElementById(idSpan);
+  if (span) {
+    span.textContent = texto;
+  } else {
+    console.error(`No se encontró un elemento con id "${idSpan}"`);
+  }
 }
