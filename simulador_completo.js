@@ -36,21 +36,41 @@ function guardarTasa() {
 }
 
 function guardarCliente() {
-  let valorNombre = document.getElementById("txtNombre").value
-  let valorApellido = document.getElementById("txtApellido").value
-  let valorCedula = document.getElementById("txtCedula").value
-  let valorIngresos = parseInt(document.getElementById("txtIngresos").value)
-  let ValorEgresos = parseInt(document.getElementById("txtEgresos").value)
 
-  let clienteNuevo = {}
+  let cedulaCliente = document.getElementById("txtCedula").value
 
-  clienteNuevo.nombre = valorNombre
-  clienteNuevo.apellido = valorApellido
-  clienteNuevo.cedula = valorCedula
-  clienteNuevo.ingresos = valorIngresos
-  clienteNuevo.egresos = ValorEgresos
+  let clienteBuscado = buscarCliente(cedulaCliente);
 
-  clientes.push(clienteNuevo)
+  if (clienteBuscado != null) {
+
+    let valorNombre = document.getElementById("txtNombre").value
+    let valorApellido = document.getElementById("txtApellido").value
+    let valorIngresos = parseInt(document.getElementById("txtIngresos").value)
+    let ValorEgresos = parseInt(document.getElementById("txtEgresos").value)
+
+    clienteBuscado.nombre = valorNombre
+    clienteBuscado.apellido = valorApellido
+    clienteBuscado.ingresos = valorIngresos
+    clienteBuscado.egresos = ValorEgresos
+
+  } else if (clienteBuscado == null) {
+    
+    let valorNombre = document.getElementById("txtNombre").value
+    let valorApellido = document.getElementById("txtApellido").value
+    let valorCedula = document.getElementById("txtCedula").value
+    let valorIngresos = parseInt(document.getElementById("txtIngresos").value)
+    let ValorEgresos = parseInt(document.getElementById("txtEgresos").value)
+
+    let clienteNuevo = {}
+
+    clienteNuevo.nombre = valorNombre
+    clienteNuevo.apellido = valorApellido
+    clienteNuevo.cedula = valorCedula
+    clienteNuevo.ingresos = valorIngresos
+    clienteNuevo.egresos = ValorEgresos
+
+    clientes.push(clienteNuevo)
+  }
 
   pintarClientes();
 }
@@ -63,19 +83,55 @@ function pintarClientes() {
   for (i = 0; i < clientes.length; i++) {
     cliente = clientes[i]
     contenidoTabla += "<tr>" +
-      "<td>" + cliente.cedula + "</td>"+
-    "<td>" + cliente.nombre + "</td>"+
-    "<td>" + cliente.apellido + "</td>"+
-    "<td>" + cliente.ingresos + "</td>"+
-    "<td>" + cliente.egresos + "</td>"+
-    "<td>"+
-    "<button>Actualizar</button>"+
-    "<button>Eliminar</button>"+
-    "</td>"+
-    "</tr>"
+      "<td>" + cliente.cedula + "</td>" +
+      "<td>" + cliente.nombre + "</td>" +
+      "<td>" + cliente.apellido + "</td>" +
+      "<td>" + cliente.ingresos + "</td>" +
+      "<td>" + cliente.egresos + "</td>" +
+      "<td>" +
+      "<button onclick=" +
+      "seleccionarCliente('" + cliente.cedula + "');>" +
+      "Actualizar</button>" +
+      "<button>Eliminar</button>" +
+      "</td>" +
+      "</tr>"
   }
 
   contenidoTabla += "</table>"
 
   cmpTabla.innerHTML = contenidoTabla
+}
+
+function buscarCliente(cedula) {
+  let elementoCliente;
+  let clienteEncontrado = null;
+
+  for (i = 0; i < clientes.length; i++) {
+    elementoCliente = clientes[i]
+
+    if (elementoCliente.cedula == cedula) {
+      clienteEncontrado = elementoCliente;
+      break
+    }
+  }
+  return clienteEncontrado
+
+}
+
+function seleccionarCliente(cedula) {
+  let clienteSeleccionado = buscarCliente(cedula);
+
+  document.getElementById("txtNombre").value = clienteSeleccionado.nombre
+  document.getElementById("txtApellido").value = clienteSeleccionado.apellido
+  document.getElementById("txtCedula").value = clienteSeleccionado.cedula
+  document.getElementById("txtIngresos").value = clienteSeleccionado.ingresos
+  document.getElementById("txtEgresos").value = clienteSeleccionado.egresos
+}
+
+function limpiar(){
+  document.getElementById("txtNombre").value = ""
+  document.getElementById("txtApellido").value = ""
+  document.getElementById("txtCedula").value = ""
+  document.getElementById("txtIngresos").value = ""
+  document.getElementById("txtEgresos").value = ""
 }
